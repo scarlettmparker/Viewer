@@ -1,0 +1,14 @@
+{
+  "title": "Viewer",
+  "subtitle": "Sign in to reach the desktop.",
+  "username": "Username",
+  "username-placeholder": "Enter username",
+  "password": "Password",
+  "password-placeholder": "Enter password",
+  "sign-in-title": "Sign in",
+  "sign-in-label": "Sign in",
+  "signing-in-title": "Signing in…",
+  "signing-in-label": "Signing in…",
+  "error-default": "Invalid credentials",
+  "error-network": "Network error"
+}

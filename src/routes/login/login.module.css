@@ -1,0 +1,22 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--xl);
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.error {
+  color: var(--destructive);
+  margin-block: var(--sm);
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}

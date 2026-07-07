@@ -1,0 +1,12 @@
+[Unit]
+Description=websockify (bridges VNC/RFB to WebSocket, serves noVNC assets)
+After=x11vnc.service network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/websockify 127.0.0.1:6080 --web=/usr/share/novnc --token-plugin=TokenFile --token-source=/etc/websockify/tokens
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

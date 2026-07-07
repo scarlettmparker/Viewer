@@ -1,0 +1,62 @@
+scalar Date
+
+type FormError {
+  message: String!
+}
+
+type StandardError {
+  message: String!
+}
+
+type QuerySuccess {
+  message: String!
+  id: ID
+}
+
+union QueryResult = QuerySuccess | StandardError | FormError
+
+type Account {
+  id: String!
+  username: String!
+  personId: ID!
+  status: AccountStatus!
+  provider: String
+  createdAt: Date
+  updatedAt: Date
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+}
+
+type AuthResult {
+  accountId: ID!
+  personId: ID!
+  token: String!
+}
+
+input LoginInput {
+  username: String!
+  password: String!
+}
+
+type GaiaQueries {
+  me: Account
+  account(id: ID!): Account
+  listAccounts: [Account!]
+}
+
+type GaiaMutations {
+  login(input: LoginInput!): AuthResult
+  logout: QueryResult
+}
+
+extend type Query {
+  gaiaQueries: GaiaQueries!
+}
+
+extend type Mutation {
+  gaiaMutations: GaiaMutations!
+}

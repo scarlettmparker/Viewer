@@ -1,0 +1,16 @@
+[Unit]
+Description=x11vnc server (mirrors the real :0 desktop)
+After=graphical.target
+Requires=graphical.target
+
+[Service]
+Type=simple
+User=scarlettp
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/scarlettp/.Xauthority
+ExecStart=/usr/bin/x11vnc -display :0 -localhost -rfbauth /etc/x11vnc.pass -forever -shared -norepeat
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical.target
