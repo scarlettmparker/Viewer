@@ -1,11 +1,11 @@
 import { getPageData, pageDataRegistry } from "@sun/ssr";
 import { useTranslation } from "react-i18next";
-import { Button } from "@sun/components";
+import { Button, Form } from "@sun/components";
 import {
   ComputerDesktopIcon,
   ArrowLeftStartOnRectangleIcon,
 } from "@heroicons/react/24/outline";
-import { fetchGraphQLData, mutateLogout } from "~/utils/api";
+import { fetchGraphQLData } from "~/utils/api";
 import styles from "./viewer.module.css";
 
 type VncCredentials = {
@@ -27,19 +27,20 @@ const Viewer = () => {
           <ComputerDesktopIcon width={ICON_SIZE} height={ICON_SIZE} />
           <h1>{t("title")}</h1>
         </div>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => mutateLogout()}
-          title={t("sign-out-title")}
-        >
-          <ArrowLeftStartOnRectangleIcon
-            className={styles.icon}
-            width={ICON_SIZE}
-            height={ICON_SIZE}
-          />
-          {t("sign-out-label")}
-        </Button>
+        <Form action="/__logout" method="post">
+          <Button
+            type="submit"
+            variant="secondary"
+            title={t("sign-out-title")}
+          >
+            <ArrowLeftStartOnRectangleIcon
+              className={styles.icon}
+              width={ICON_SIZE}
+              height={ICON_SIZE}
+            />
+            {t("sign-out-label")}
+          </Button>
+        </Form>
       </header>
       <div className={styles.stage}>
         {iframeSrc ? (

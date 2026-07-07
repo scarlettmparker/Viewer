@@ -3,7 +3,6 @@
  */
 
 import { fetchGraphQLData } from "./api";
-import { isProduction } from "../../config.js";
 
 /** Name of the httpOnly cookie holding the Gaia JWT. */
 export const AUTH_COOKIE = "viewer_auth";
@@ -48,8 +47,7 @@ export function buildAuthCookie(
   token: string,
   maxAgeSeconds = 60 * 60 * 12,
 ): string {
-  const secure = isProduction ? "; Secure" : "";
-  return `${AUTH_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax${secure}; Max-Age=${maxAgeSeconds}`;
+  return `${AUTH_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAgeSeconds}`;
 }
 
 /** Returns the Set-Cookie value that clears the auth cookie. */

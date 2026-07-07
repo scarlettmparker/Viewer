@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--lg);
-  padding: var(--sm) var(--lg);
+  padding: var(--md) var(--lg);
   border-bottom: 1px solid var(--border);
 }
 

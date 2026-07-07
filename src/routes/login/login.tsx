@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   Card,
@@ -15,30 +15,13 @@ import {
   Button,
 } from "@sun/components";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import { mutateLogin } from "~/utils/api";
 import styles from "./login.module.css";
 
-/** Login page. */
+/** Login page. Native form POST to /__login (PRG) so the auth cookie sticks. */
 const Login = () => {
   const { t } = useTranslation("login");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const formData = new FormData(e.currentTarget);
-    const username = formData.get("username") as string;
-    const password = formData.get("password") as string;
-
-    const result = await mutateLogin(username, password);
-    if (result.__typename !== "Redirect") {
-      setError(result.message || t("error-default"));
-    }
-    setLoading(false);
-  };
+  const [searchParams] = useSearchParams();
+  const failed = searchParams.get("error") === "1";
 
   return (
     <div className={styles.wrapper}>
@@ -48,7 +31,7 @@ const Login = () => {
           <CardDescription>{t("subtitle")}</CardDescription>
         </CardHeader>
         <CardBody>
-          <Form onSubmit={handleSubmit}>
+          <Form action="/__login" method="post">
             <FormField name="username">
               <FormLabel>{t("username")}</FormLabel>
               <FormItem>
@@ -65,20 +48,17 @@ const Login = () => {
               <FormLabel>{t("password")}</FormLabel>
               <FormItem>
                 <Input
+                  type="password"
                   placeholder={t("password-placeholder")}
                   autoComplete="current-password"
                   required
                 />
               </FormItem>
             </FormField>
-            {error && <p className={styles.error}>{error}</p>}
+            {failed && <p className={styles.error}>{t("error-default")}</p>}
             <FormFooter>
-              <Button
-                type="submit"
-                title={loading ? t("signing-in-title") : t("sign-in-title")}
-                disabled={loading}
-              >
-                {loading ? t("signing-in-label") : t("sign-in-label")}
+              <Button type="submit" title={t("sign-in-title")}>
+                {t("sign-in-label")}
               </Button>
             </FormFooter>
           </Form>

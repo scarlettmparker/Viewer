@@ -4,7 +4,6 @@
  */
 
 import { print, DocumentNode } from "graphql";
-import { executeMutation, type MutationResult } from "@sun/ssr";
 
 export type ApiResponse<T> = {
   success: boolean;
@@ -80,7 +79,7 @@ export function registerGraphQLOperation(
     }
     node = node[part] as Record<string, unknown>;
   }
-  
+
   node[parts[parts.length - 1]] = queryDocument;
 }
 
@@ -194,63 +193,3 @@ export async function fetchGraphQLData<T>(
     };
   }
 }
-
-// Example queries
-// /**
-//  * List operation for blog posts.
-//  */
-// export async function fetchListBlogPosts() {
-//   return fetchGraphQLData("blogQueries.listBlogPosts");
-// }
-
-/**
- * Logs in via the gaia/login mutation.
- *
- * @param username the Gaia username
- * @param password the Gaia password
- * @returns the mutation result
- */
-export async function mutateLogin(
-  username: string,
-  password: string,
-): Promise<MutationResult> {
-  const result = await executeMutation("gaia/login", { username, password });
-  if (result.__typename === "Redirect") {
-    window.location.assign(result.redirectTo);
-  }
-  return result;
-}
-
-/**
- * Logs out via the gaia/logout mutation.
- *
- * @returns the mutation result
- */
-export async function mutateLogout(): Promise<MutationResult> {
-  const result = await executeMutation("gaia/logout", {});
-  if (result.__typename === "Redirect") {
-    window.location.assign(result.redirectTo);
-  }
-  return result;
-}
-
-// /**
-//  * Locate operation for blog posts.
-//  */
-// export async function fetchLocateBlogPost(id: string) {
-//   return fetchGraphQLData("blogQueries.locateBlogPost", { id });
-// }
-
-// Example mutation
-// /**
-//  * Create blog post mutation.
-//  */
-// export async function mutateCreateBlogPost(
-//   title: string,
-//   input: BlogPostInput,
-// ) {
-//   return fetchGraphQLData<CreateBlogPostMutation>(
-//     "blogMutations.createBlogPost",
-//     { title, input },
-//   );
-// }

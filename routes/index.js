@@ -5,7 +5,14 @@
 import { renderApp } from "../utils/ssr.js";
 import { base, isProduction } from "../config.js";
 import { Buffer } from "buffer";
-import { AUTH_COOKIE, getCookieValue, getCurrentUser } from "../src/utils/auth.ts";
+import {
+  AUTH_COOKIE,
+  getCookieValue,
+  getCurrentUser,
+  loginViaGaia,
+  buildAuthCookie,
+  clearAuthCookie,
+} from "../src/utils/auth.ts";
 
 /** Pages that do not require an authenticated Gaia session. */
 const PUBLIC_PAGES = new Set(["/login"]);
@@ -18,14 +25,34 @@ function normalizePath(pathname) {
 }
 
 /**
- * Sets up routes for the Fastify application: the SSR catch-all and its Gaia
- * auth gate. Login, logout, and credential minting are handled by the @sun/ssr
- * mutation and page-data pipelines.
+ * Sets up routes for the Fastify application.
  *
  * @param {import("fastify").FastifyInstance} app - The Fastify application instance.
  * @param {object} vite - The Vite dev server instance (optional, only in development).
  */
 export function setupRoutes(app, vite) {
+  /**
+   * Login via PRG: a native form POST validates against Gaia, sets the httpOnly
+   * auth cookie, and redirects.
+   */
+  app.post("/__login", async (request, reply) => {
+    const { username, password } = request.body ?? {};
+
+    const token = await loginViaGaia(username, password);
+    if (!token) {
+      return reply.redirect("/login?error=1");
+    }
+
+    reply.header("Set-Cookie", buildAuthCookie(token));
+    return reply.redirect("/");
+  });
+
+  /** Logout via PRG: clears the auth cookie and redirects to /login. */
+  app.post("/__logout", async (_request, reply) => {
+    reply.header("Set-Cookie", clearAuthCookie());
+    return reply.redirect("/login");
+  });
+
   /**
    * Catch-all route for server-side rendering of pages, gated on a Gaia session.
    */
