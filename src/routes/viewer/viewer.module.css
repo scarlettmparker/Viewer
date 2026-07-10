@@ -25,10 +25,6 @@
   margin: 0;
 }
 
-.icon {
-  margin-right: var(--xs);
-}
-
 .stage {
   position: relative;
   flex: 1;
