@@ -119,6 +119,8 @@ export async function fetchGraphQLData<T>(
 ): Promise<ApiResponse<T>> {
   const endpoint =
     process.env.GRAPHQL_ENDPOINT || "http://localhost:8083/graphql";
+  const clientSecret = process.env.CLIENT_SECRET || "";
+  const clientId = process.env.CLIENT_ID || "viewer";
 
   const query = getOperation(operationName);
   if (!query) {
@@ -133,6 +135,8 @@ export async function fetchGraphQLData<T>(
     return await retryWithBackoff(async () => {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
+        "X-Client-Secret": clientSecret,
+        "X-Client-Id": clientId,
       };
       if (authToken) {
         headers.Authorization = `Bearer ${authToken}`;

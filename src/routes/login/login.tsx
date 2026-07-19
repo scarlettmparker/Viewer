@@ -14,7 +14,7 @@ import {
   Input,
   Button,
 } from "@sun/components";
-import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import { CsrfField } from "@sun/ssr/react";
 import styles from "./login.module.css";
 
 /** Login page. Native form POST to /__login (PRG) so the auth cookie sticks. */
@@ -32,6 +32,7 @@ const Login = () => {
         </CardHeader>
         <CardBody>
           <Form action="/__login" method="post">
+            <CsrfField />
             <FormField name="username">
               <FormLabel>{t("username")}</FormLabel>
               <FormItem>

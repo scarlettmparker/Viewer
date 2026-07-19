@@ -11,6 +11,7 @@ import {
   isProduction,
   backendHost,
   backendPort,
+  clientSecret,
 } from "./config.js";
 import { setupRoutes } from "./routes/index.js";
 
@@ -25,7 +26,7 @@ const configure = async (app) => {
 };
 
 await createServer({
-  config: { port, host, base, isProduction, backendHost, backendPort },
+  config: { port, host, base, isProduction, backendHost, backendPort, clientSecret },
   setupRoutes,
   configure,
 });

@@ -1,6 +1,7 @@
 import { getPageData, pageDataRegistry } from "@sun/ssr";
 import { useTranslation } from "react-i18next";
 import { Button, Form } from "@sun/components";
+import { CsrfField } from "@sun/ssr/react";
 import {
   ComputerDesktopIcon,
   ArrowLeftStartOnRectangleIcon,
@@ -28,6 +29,7 @@ const Viewer = () => {
           <h1>{t("title")}</h1>
         </div>
         <Form action="/__logout" method="post">
+          <CsrfField />
           <Button
             type="submit"
             variant="secondary"
