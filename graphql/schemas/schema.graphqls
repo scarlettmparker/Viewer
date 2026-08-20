@@ -1,4 +1,4 @@
-scalar Date
+scalar DateTime
 
 type FormError {
   message: String!
@@ -21,8 +21,8 @@ type Account {
   personId: ID!
   status: AccountStatus!
   provider: String
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 enum AccountStatus {
