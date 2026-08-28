@@ -45,14 +45,16 @@ export function getCookieValue(
  */
 export function buildAuthCookie(
   token: string,
-  maxAgeSeconds = 60 * 60 * 12,
+  maxAgeSeconds = 60 * 60 * 24,
 ): string {
-  return `${AUTH_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAgeSeconds}`;
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return `${AUTH_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax${secure}; Max-Age=${maxAgeSeconds}`;
 }
 
 /** Returns the Set-Cookie value that clears the auth cookie. */
 export function clearAuthCookie(): string {
-  return `${AUTH_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return `${AUTH_COOKIE}=; Path=/; HttpOnly; SameSite=Lax${secure}; Max-Age=0`;
 }
 
 /**
