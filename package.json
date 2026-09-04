@@ -40,9 +40,9 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
-    "@sun/ssr": "^0.5.5",
-    "@sun/components": "^0.10.15",
-    "@sun/utils": "^0.1.7",
+    "@sun/ssr": "^0.5.31",
+    "@sun/components": "^0.12.0",
+    "@sun/utils": "^0.1.22",
     "@posthog/react": "^1.9.0",
     "@heroicons/react": "^2.2.0",
     "@testing-library/user-event": "^14.6.1",
