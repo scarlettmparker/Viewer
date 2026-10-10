@@ -6,7 +6,7 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "types": ["node"],
+    "types": ["bun-types", "node"],
 
     /* Bundler mode */
     "moduleResolution": "Bundler",

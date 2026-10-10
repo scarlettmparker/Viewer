@@ -39,7 +39,7 @@ The gateway runs on the same PC as x11vnc. Rebuild and run it.
 Republish (cookie-setting mutations, `0.2.2`):
 
 ```bash
-cd Sun/packages/ssr && npm run build && npm run publish
+cd Sun/packages/ssr && bun run build && bun run publish
 ```
 
 ## nginx Proxy Manager
@@ -55,6 +55,6 @@ Host `viewer.int.scarlettparker.co.uk`:
 ## Run
 
 ```bash
-npm install
-npm run dev
+bun install
+bun run dev
 ```
