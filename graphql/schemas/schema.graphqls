@@ -1,20 +1,5 @@
 scalar DateTime
 
-type FormError {
-  message: String!
-}
-
-type StandardError {
-  message: String!
-}
-
-type QuerySuccess {
-  message: String!
-  id: ID
-}
-
-union QueryResult = QuerySuccess | StandardError | FormError
-
 type Account {
   id: String!
   username: String!
@@ -48,9 +33,13 @@ type GaiaQueries {
   listAccounts: [Account!]
 }
 
+type LogoutResponse {
+  message: String!
+}
+
 type GaiaMutations {
   login(input: LoginInput!): AuthResult
-  logout: QueryResult
+  logout: LogoutResponse!
 }
 
 extend type Query {

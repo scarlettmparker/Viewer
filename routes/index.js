@@ -76,25 +76,6 @@ export function setupRoutes(app, vite) {
       return reply.redirect("/");
     }
 
-    const mutationPayloadCookie = getCookieValue(
-      request.headers.cookie,
-      "mutation_payload",
-    );
-    const invalidateCacheCookie = getCookieValue(
-      request.headers.cookie,
-      "invalidate_cache",
-    );
-    let mutationPayload = null;
-    if (mutationPayloadCookie) {
-      try {
-        mutationPayload = JSON.parse(
-          Buffer.from(mutationPayloadCookie, "base64").toString("utf-8"),
-        );
-      } catch (_) {
-        // Do nothing
-      }
-    }
-
     let url = pathname.replace(base, "");
     if (!url.startsWith("/")) url = "/" + url;
     if (requestUrl.search) url += requestUrl.search;
@@ -113,8 +94,6 @@ export function setupRoutes(app, vite) {
           locale,
           pageName,
           user,
-          mutationPayload,
-          invalidateCacheCookie,
         },
         reply.raw,
       );

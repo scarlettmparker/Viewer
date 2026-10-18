@@ -8,7 +8,7 @@ import NotFound from "./routes/not-found";
 import { matchRoutes } from "react-router-dom";
 import { inlineCss, generateCssTag } from "@sun/utils/css-inlining";
 import "./utils/register-loaders";
-import { suspenseCache, invalidateCache, type MutationResult } from "@sun/ssr";
+import { suspenseCache } from "@sun/ssr";
 import fs from "fs";
 import path from "path";
 
@@ -26,8 +26,6 @@ type RenderProps = {
   clientJs: string;
   clientCss: string[];
   isProduction: boolean;
-  mutationPayload: MutationResult;
-  invalidateCacheCookie?: string;
 };
 
 export async function render({
@@ -37,19 +35,12 @@ export async function render({
   clientJs,
   clientCss,
   isProduction,
-  mutationPayload: _mutationPayload,
-  invalidateCacheCookie,
 }: RenderProps) {
   const posthogKey = process.env.POSTHOG_API_KEY ?? "";
   const posthogHost = process.env.POSTHOG_HOST ?? "";
 
   if (!clientJs) {
     throw new Error("Missing required clientJs path");
-  }
-
-  let shouldDeleteCookie = false;
-  if (invalidateCacheCookie) {
-    shouldDeleteCookie = invalidateCache(invalidateCacheCookie);
   }
 
   for (const [key, record] of suspenseCache.entries()) {
@@ -107,10 +98,6 @@ export async function render({
       onShellReady() {
         const cssTag = generateCssTag(isProduction, cssContent, clientCss);
         const headers: Record<string, string> = { "Content-Type": "text/html" };
-        if (shouldDeleteCookie) {
-          headers["Set-Cookie"] =
-            "invalidate_cache=; Path=/; Max-Age=0; SameSite=Lax;";
-        }
         const prelude = `<!DOCTYPE html>
           <html lang="en">
             <head>
