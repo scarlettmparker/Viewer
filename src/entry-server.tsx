@@ -1,83 +1,44 @@
 import React, { Suspense } from "react";
-import { createI18nInstance } from "./utils/i18n";
-import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
+import { matchRoutes } from "react-router-dom";
 import { Router, routes } from "./router";
 import Layout from "./components/layout";
 import NotFound from "./routes/not-found";
-import { matchRoutes } from "react-router-dom";
-import { inlineCss, generateCssTag } from "@sun/utils/css-inlining";
+import { createRenderer } from "@sun/ssr/renderer";
+import { createI18nInstance } from "./utils/i18n";
+import { setI18n } from "@sun/i18n";
 import "./utils/register-loaders";
-import { suspenseCache } from "@sun/ssr";
-import fs from "fs";
-import path from "path";
 
-type i18n = {
-  translations: Record<string, string>;
-  locale: string;
-  pageName: string;
-};
+const renderer = createRenderer({
+  title: "Viewer | Scarlet Sun",
+  initI18n(locale, translations) {
+    const instance = createI18nInstance();
+    setI18n(instance);
+    return instance.init({
+      lng: locale,
+      fallbackLng: "en",
+      resources: { [locale]: translations } as never,
+      interpolation: { escapeValue: false },
+      react: { useSuspense: true },
+    });
+  },
+});
 
-type RenderProps = {
+export async function render(options: {
   url: string;
-  translations: i18n["translations"];
   locale: string;
   pageName: string;
   clientJs: string;
   clientCss: string[];
   isProduction: boolean;
-};
-
-export async function render({
-  url,
-  locale,
-  pageName,
-  clientJs,
-  clientCss,
-  isProduction,
-}: RenderProps) {
-  const posthogKey = process.env.POSTHOG_API_KEY ?? "";
-  const posthogHost = process.env.POSTHOG_HOST ?? "";
-
-  if (!clientJs) {
-    throw new Error("Missing required clientJs path");
-  }
-
-  for (const [key, record] of suspenseCache.entries()) {
-    if (record.status === "rejected") {
-      suspenseCache.delete(key);
-    }
-  }
-
-  const i18n = createI18nInstance();
-  await i18n.init({
-    lng: locale,
-    fallbackLng: "en",
-    resources: {},
-    interpolation: { escapeValue: false },
-  });
-
-  let translations: Record<string, unknown> = {};
-  try {
-    const filePath = path.resolve(
-      process.cwd(),
-      `messages/${pageName}/${locale}.json`,
-    );
-    if (fs.existsSync(filePath)) {
-      const fileContent = fs.readFileSync(filePath, "utf-8");
-      translations = JSON.parse(fileContent);
-      i18n.addResourceBundle(locale, pageName, translations, true, true);
-    }
-  } catch {
-    // fallback to empty
-  }
-
-  const matches = matchRoutes(routes, url);
+  nonce?: string;
+  frontendMode?: string;
+}) {
+  const matches = matchRoutes(routes, options.url);
   const didMatch = Boolean(matches);
-
   const App = (
     <React.StrictMode>
-      <StaticRouter location={url}>
+      <StaticRouter location={options.url}>
         <Layout>
           <Suspense fallback={null}>
             <Router />
@@ -87,74 +48,16 @@ export async function render({
     </React.StrictMode>
   );
 
-  const cssContent = await inlineCss(isProduction, clientCss);
-
-  return new Promise((resolve) => {
-    let resolved = false;
-    let postludeData = "";
-
-    const stream = renderToPipeableStream(didMatch ? App : <NotFound />, {
-      bootstrapModules: [clientJs],
-      onShellReady() {
-        const cssTag = generateCssTag(isProduction, cssContent, clientCss);
-        const headers: Record<string, string> = { "Content-Type": "text/html" };
-        const prelude = `<!DOCTYPE html>
-          <html lang="en">
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              ${cssTag}
-              <title>Viewer | Scarlet Sun</title>
-            </head>
-            <script type="module">
-              import RefreshRuntime from '${process.env.VITE_SERVER_BASE}/@react-refresh'
-              RefreshRuntime.injectIntoGlobalHook(window)
-              window.$RefreshReg$ = () => {}
-              window.$RefreshSig$ = () => (type) => type
-              window.__vite_plugin_react_preamble_installed__ = true
-            </script>
-            <script>
-              window.__translations__ = ${JSON.stringify(translations)};
-              window.__posthog_key__ = '${posthogKey}';
-              window.__posthog_host__ = '${posthogHost}';
-              window.__locale__ = '${locale}';
-              window.__serverCacheData__ = {};
-            </script>
-            <body>
-              <div id="app">`;
-        if (!resolved) {
-          resolved = true;
-          resolve({
-            statusCode: didMatch ? 200 : 404,
-            headers,
-            prelude,
-            postlude: () => postludeData,
-            stream,
-          });
-        }
-      },
-      onAllReady() {
-        const serverCacheData: Record<string, unknown> = {};
-
-        for (const [key, record] of suspenseCache.entries()) {
-          if (record.status === "resolved") {
-            serverCacheData[key] = record.result;
-          }
-        }
-
-        postludeData = `</div>
-          <script>
-          if (window.__serverCacheData__ !== undefined) {
-            Object.assign(window.__serverCacheData__, ${JSON.stringify(serverCacheData)});
-            if (window.hydratePageDataFromPostlude) {
-              window.hydratePageDataFromPostlude(window.__serverCacheData__);
-            }
-          }
-          </script>
-          <script type="module" src="${clientJs}"></script>
-        </body>
-      </html>`;
-      },
-    });
+  return renderer.render({
+    app: didMatch ? App : <NotFound />,
+    didMatch,
+    url: options.url,
+    locale: options.locale,
+    pageName: options.pageName,
+    clientJs: options.clientJs,
+    clientCss: options.clientCss,
+    isProduction: options.isProduction,
+    nonce: options.nonce,
+    frontendMode: options.frontendMode,
   });
 }

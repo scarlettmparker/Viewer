@@ -2,9 +2,8 @@
  * @fileoverview Defines and sets up all application routes.
  * @module routes
  */
-import { renderApp } from "../utils/ssr.js";
-import { base, isProduction } from "../config.js";
-import { Buffer } from "buffer";
+import { renderApp } from "@sun/ssr/server";
+import { base, isProduction, manifestPath } from "../config.js";
 import {
   AUTH_COOKIE,
   getCookieValue,
@@ -19,9 +18,7 @@ const PUBLIC_PAGES = new Set(["/login"]);
 
 /** Strips a trailing slash (except for the root). */
 function normalizePath(pathname) {
-  return pathname.length > 1 && pathname.endsWith("/")
-    ? pathname.replace(/\/+$/, "")
-    : pathname;
+  return pathname.length > 1 && pathname.endsWith("/") ? pathname.replace(/\/+$/, "") : pathname;
 }
 
 /**
@@ -93,7 +90,7 @@ export function setupRoutes(app, vite) {
           url,
           locale,
           pageName,
-          user,
+          manifestPath,
         },
         reply.raw,
       );

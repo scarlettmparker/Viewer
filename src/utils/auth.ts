@@ -21,10 +21,7 @@ export type Account = {
  * @param name the cookie name
  * @returns the decoded value, or undefined if not present
  */
-export function getCookieValue(
-  cookieHeader: string | undefined,
-  name: string,
-): string | undefined {
+export function getCookieValue(cookieHeader: string | undefined, name: string): string | undefined {
   if (!cookieHeader) return undefined;
   for (const part of cookieHeader.split(/;\s*/)) {
     const index = part.indexOf("=");
@@ -43,10 +40,7 @@ export function getCookieValue(
  * @param maxAgeSeconds the cookie lifetime in seconds
  * @returns the Set-Cookie header value
  */
-export function buildAuthCookie(
-  token: string,
-  maxAgeSeconds = 60 * 60 * 24,
-): string {
+export function buildAuthCookie(token: string, maxAgeSeconds = 60 * 60 * 24): string {
   const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
   return `${AUTH_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax${secure}; Max-Age=${maxAgeSeconds}`;
 }
@@ -63,9 +57,7 @@ export function clearAuthCookie(): string {
  * @param token the Gaia JWT
  * @returns the account, or null if invalid or absent
  */
-export async function getCurrentUser(
-  token: string | undefined,
-): Promise<Account | null> {
+export async function getCurrentUser(token: string | undefined): Promise<Account | null> {
   if (!token) return null;
   const res = await fetchGraphQLData<{
     gaiaQueries: { me: Account | null };
@@ -81,10 +73,7 @@ export async function getCurrentUser(
  * @param password the Gaia password
  * @returns the JWT, or null if the credentials were rejected
  */
-export async function loginViaGaia(
-  username: string,
-  password: string,
-): Promise<string | null> {
+export async function loginViaGaia(username: string, password: string): Promise<string | null> {
   const res = await fetchGraphQLData<{
     gaiaMutations: { login: { token: string } | null };
   }>("gaiaMutations.login", { input: { username, password } });

@@ -17,9 +17,8 @@ vi.mock("i18next", () => ({
   init: vi.fn(),
 }));
 
-vi.mock("react-i18next", () => ({
+vi.mock("@sun/i18n", () => ({
   useTranslation,
-  initReactI18next: vi.fn(() => ({
-    init: vi.fn(),
-  })),
+  setI18n: vi.fn(),
+  getI18n: vi.fn(() => null),
 }));

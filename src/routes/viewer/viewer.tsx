@@ -1,11 +1,8 @@
 import { getPageData, pageDataRegistry } from "@sun/ssr";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import { Button, Form } from "@sun/components";
 import { CsrfField } from "@sun/ssr/react";
-import {
-  ComputerDesktopIcon,
-  ArrowLeftStartOnRectangleIcon,
-} from "@heroicons/react/24/outline";
+import { ComputerDesktopOutline, ArrowLeftStartOnRectangleOutline } from "preact-heroicons";
 import { fetchGraphQLData } from "~/utils/api";
 import styles from "./viewer.module.css";
 
@@ -25,17 +22,13 @@ const Viewer = () => {
     <div className={styles.viewer_layout}>
       <header className={styles.toolbar}>
         <div className={styles.title}>
-          <ComputerDesktopIcon width={ICON_SIZE} height={ICON_SIZE} />
+          <ComputerDesktopOutline width={ICON_SIZE} height={ICON_SIZE} />
           <h1>{t("title")}</h1>
         </div>
         <Form action="/__logout" method="post">
           <CsrfField />
-          <Button
-            type="submit"
-            variant="secondary"
-            title={t("sign-out-title")}
-          >
-            <ArrowLeftStartOnRectangleIcon
+          <Button type="submit" variant="secondary" title={t("sign-out-title")}>
+            <ArrowLeftStartOnRectangleOutline
               className={styles.icon}
               width={ICON_SIZE}
               height={ICON_SIZE}

@@ -14,6 +14,7 @@ import {
   clientSecret,
 } from "./config.js";
 import { setupRoutes } from "./routes/index.js";
+import { AUTH_COOKIE } from "./src/utils/auth.ts";
 
 import "./src/utils/register-loaders.ts";
 import "./src/utils/configure-framework.ts";
@@ -29,4 +30,8 @@ await createServer({
   config: { port, host, base, isProduction, backendHost, backendPort, clientSecret },
   setupRoutes,
   configure,
+  analytics: {
+    app: "viewer",
+    authCookie: AUTH_COOKIE,
+  },
 });

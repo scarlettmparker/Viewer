@@ -15,13 +15,7 @@ export type ApiResponse<T> = {
 /**
  * Type definition for the operation registry with strong typing.
  */
-type OperationRegistry = {
-  // Exmaple queries:
-  // blogQueries: {
-  //   listBlogPosts: DocumentNode;
-  //   locateBlogPost: DocumentNode;
-  // };
-};
+type OperationRegistry = Record<string, unknown>;
 
 /**
  * Registry of GraphQL operations mapped to their query documents.
@@ -44,12 +38,7 @@ function getOperation(path: string): DocumentNode | undefined {
   const parts = path.split(".");
   let current: unknown = operationRegistry;
   for (const part of parts) {
-    if (
-      current &&
-      typeof current === "object" &&
-      current !== null &&
-      part in current
-    ) {
+    if (current && typeof current === "object" && current !== null && part in current) {
       current = (current as Record<string, unknown>)[part];
     } else {
       return undefined;
@@ -65,10 +54,7 @@ function getOperation(path: string): DocumentNode | undefined {
  * @param operationName The dot-separated path (e.g. "gaiaQueries.me").
  * @param queryDocument The GraphQL query document.
  */
-export function registerGraphQLOperation(
-  operationName: string,
-  queryDocument: DocumentNode,
-): void {
+export function registerGraphQLOperation(operationName: string, queryDocument: DocumentNode): void {
   const parts = operationName.split(".");
 
   let node = operationRegistry as Record<string, unknown>;
@@ -86,10 +72,7 @@ export function registerGraphQLOperation(
 /**
  * Retry with backoff function.
  */
-const retryWithBackoff = async <T>(
-  fn: () => Promise<T>,
-  delays: number[],
-): Promise<T> => {
+const retryWithBackoff = async <T>(fn: () => Promise<T>, delays: number[]): Promise<T> => {
   let lastError: unknown;
   for (let i = 0; i <= delays.length; i++) {
     try {
@@ -117,8 +100,7 @@ export async function fetchGraphQLData<T>(
   variables?: Record<string, unknown>,
   authToken?: string,
 ): Promise<ApiResponse<T>> {
-  const endpoint =
-    process.env.GRAPHQL_ENDPOINT || "http://localhost:8083/graphql";
+  const endpoint = process.env.GRAPHQL_ENDPOINT || "http://localhost:8083/graphql";
   const clientSecret = process.env.CLIENT_SECRET || "";
   const clientId = process.env.CLIENT_ID || "viewer";
 
@@ -161,9 +143,7 @@ export async function fetchGraphQLData<T>(
 
       if (result.errors) {
         throw {
-          message: result.errors
-            .map((e: { message: string }) => e.message)
-            .join(", "),
+          message: result.errors.map((e: { message: string }) => e.message).join(", "),
           statusCode: 400,
         };
       }
@@ -178,12 +158,7 @@ export async function fetchGraphQLData<T>(
       };
     }, [500, 2000, 4000, 6000]);
   } catch (error) {
-    if (
-      error &&
-      typeof error === "object" &&
-      "message" in error &&
-      "statusCode" in error
-    ) {
+    if (error && typeof error === "object" && "message" in error && "statusCode" in error) {
       return {
         success: false,
         error: error.message as string,

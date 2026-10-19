@@ -1,5 +1,6 @@
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react-swc";
+import preact from "@preact/preset-vite";
+import { compression, forbidModules, stripJsxPragma } from "@sun/build";
 import { visualizer } from "rollup-plugin-visualizer";
 import path from "node:path";
 
@@ -10,7 +11,12 @@ export default defineConfig(() => {
       .filter(Boolean) ?? [];
 
   return {
-    plugins: [react()],
+    plugins: [
+      preact(),
+      stripJsxPragma("preact-heroicons"),
+      compression(),
+      forbidModules(["react", "react-dom"]),
+    ],
     resolve: {
       alias: {
         "~": path.resolve(import.meta.dirname, "./src"),
@@ -31,23 +37,60 @@ export default defineConfig(() => {
           client: "/src/entry-client.tsx",
         },
         plugins: [
-          visualizer({
-            filename: "stats.html",
-            open: false,
-            gzipSize: true,
-            brotliSize: true,
-          }),
+          ...(process.env.ANALYZE
+            ? [
+                visualizer({
+                  filename: "stats.html",
+                  open: false,
+                  gzipSize: true,
+                  brotliSize: true,
+                }),
+              ]
+            : []),
         ],
+        output: {
+          manualChunks(id) {
+            if (!id.includes("node_modules")) {
+              return;
+            }
+            if (id.includes("@sun/components")) {
+              return "vendor-components";
+            }
+            if (id.includes("posthog")) {
+              return "vendor-posthog";
+            }
+            if (
+              id.includes("/preact/") ||
+              id.includes("\\preact\\") ||
+              id.includes("/react-dom/") ||
+              id.includes("\\react-dom\\") ||
+              id.includes("/react-router-dom/") ||
+              id.includes("\\react-router-dom\\") ||
+              /[/\\]react[/\\]/.test(id)
+            ) {
+              return "vendor-react";
+            }
+          },
+        },
       },
       outDir: "dist/client",
       cssCodeSplit: true,
     },
     ssr: {
       noExternal: [
-        "react-router-dom",
-        "posthog-js",
-        "@posthog/react",
         "@sun/ssr",
+        "@sun/api",
+        "@sun/components",
+        "@sun/themes",
+        "@sun/utils",
+        "@sun/shared",
+        "@sun/events",
+        "@sun/security",
+        "react-router-dom",
+        "react-router",
+        "react-i18next",
+        "@heroicons/react",
+        "lucide-react",
       ],
     },
   };

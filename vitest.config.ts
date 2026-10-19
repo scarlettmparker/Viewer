@@ -19,6 +19,10 @@ export default defineConfig({
     alias: {
       "~": path.resolve(import.meta.dirname, "./src"),
       testing: path.resolve(import.meta.dirname, "./testing"),
+      "react-dom/test-utils": "preact/test-utils",
+      "react-dom": "preact/compat",
+      "react/jsx-runtime": "preact/jsx-runtime",
+      react: "preact/compat",
     },
   },
 });
